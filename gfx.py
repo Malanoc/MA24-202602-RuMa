@@ -13,12 +13,8 @@ COULEUR_NOIR = (30, 30, 30)
 COULEUR_BLANC = (245, 245, 245)
 COULEUR_LIGNES = (0, 0, 0)
 
-
+#Initialise la fenêtre pygame et retourne l'écran ainsi que la police utilisée.
 def initialiser_fenetre():
-    """
-    Initialise la fenêtre pygame et retourne
-    l'écran ainsi que la police utilisée.
-    """
 
     pygame.init()
 
@@ -34,11 +30,8 @@ def initialiser_fenetre():
 
     return ecran, police
 
-
+#Dessine le plateau et les pions.
 def dessiner_plateau(ecran, plateau):
-    """
-    Dessine le plateau et les pions.
-    """
 
     # Remplir le fond avec la couleur verte
     ecran.fill(COULEUR_PLATEAU)
@@ -74,11 +67,8 @@ def dessiner_plateau(ecran, plateau):
                     couleur_pion
                 )
 
-
+#  Dessine un pion avec un rendu lisse (anti-aliasing).
 def dessiner_pion(ecran, centre, rayon, couleur):
-    """
-    Dessine un pion avec un rendu lisse (anti-aliasing).
-    """
 
     centre_x = centre[0]
     centre_y = centre[1]
@@ -89,11 +79,8 @@ def dessiner_pion(ecran, centre, rayon, couleur):
     # Contour lisse
     pygame.gfxdraw.aacircle(ecran, centre_x, centre_y, rayon, couleur)
 
-
+#  Affiche le score et indique le joueur actuel.
 def dessiner_interface(ecran, police, joueur, plateau):
-    """
-    Affiche le score et indique le joueur actuel.
-    """
 
     score_noir, score_blanc = core.calculer_score(plateau)
 

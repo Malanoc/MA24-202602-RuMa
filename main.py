@@ -5,11 +5,8 @@ import sys
 import core
 import gfx
 
-
+# Fonction principale qui lance et gère le jeu.
 def lancer_jeu():
-    """
-    Fonction principale qui lance et gère le jeu.
-    """
 
     # Initialisation de la fenêtre graphique
     ecran, police = gfx.initialiser_fenetre()

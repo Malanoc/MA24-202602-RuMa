@@ -15,12 +15,8 @@ DIRECTIONS = [
     (1, -1),  (1, 0),  (1, 1)
 ]
 
-
+#  Crée un plateau vide 8x8, puis place les 4 pions de départ.
 def creer_plateau():
-    """
-    Crée un plateau vide 8x8
-    puis place les 4 pions de départ.
-    """
 
     plateau = []
 
@@ -43,22 +39,16 @@ def creer_plateau():
 
     return plateau
 
-
+# Vérifie si une position est bien à l'intérieur du plateau.
 def position_valide(ligne, colonne):
-    """
-    Vérifie si une position est bien à l'intérieur du plateau.
-    """
+
     if ligne >= 0 and ligne < BOARD_SIZE and colonne >= 0 and colonne < BOARD_SIZE:
         return True
     else:
         return False
 
-
+# Retourne la liste des pions qui seront retournés, si le joueur joue à la position donnée.
 def pions_a_retourner(plateau, ligne, colonne, joueur):
-    """
-    Retourne la liste des pions qui seront retournés
-    si le joueur joue à la position donnée.
-    """
 
     liste_pions = []
 
@@ -92,11 +82,8 @@ def pions_a_retourner(plateau, ligne, colonne, joueur):
 
     return liste_pions
 
-
+#  Retourne la liste des coups possibles pour le joueur.
 def coups_valides(plateau, joueur):
-    """
-    Retourne la liste des coups possibles pour le joueur.
-    """
 
     liste_coups = []
 
@@ -112,11 +99,8 @@ def coups_valides(plateau, joueur):
 
     return liste_coups
 
-
+# Applique un coup sur le plateau.
 def jouer_coup(plateau, ligne, colonne, joueur):
-    """
-    Applique un coup sur le plateau.
-    """
 
     pions = pions_a_retourner(plateau, ligne, colonne, joueur)
 
@@ -132,11 +116,8 @@ def jouer_coup(plateau, ligne, colonne, joueur):
 
     return True
 
-
+#   Compte le nombre de pions noirs et blancs.
 def calculer_score(plateau):
-    """
-    Compte le nombre de pions noirs et blancs.
-    """
 
     score_noir = 0
     score_blanc = 0
