@@ -6,9 +6,13 @@ import core
 import gfx
 
 # Fonction principale qui lance et gère le jeu.
+
+
+
 def lancer_jeu():
 
     # Initialisation de la fenêtre graphique
+
     ecran, police = gfx.initialiser_fenetre()
 
     horloge = pygame.time.Clock()
@@ -16,10 +20,18 @@ def lancer_jeu():
     # Création du plateau initial
     plateau = core.creer_plateau()
 
+    # Joueur IA 
+    joueur_humain = core.PION_NOIR
+    joueur_ia = core.PION_BLANC
+
     # Le joueur noir commence toujours
     joueur_actuel = core.PION_NOIR
 
     jeu_en_cours = True
+    
+    temps_ia = 0  # Pour gérer le délai de l'IA
+
+    gfx.ecran_demarrage(ecran, police)
 
     # Boucle principale
     while jeu_en_cours:
@@ -38,8 +50,8 @@ def lancer_jeu():
                 pygame.quit()
                 sys.exit()
 
-            # Clic de la souris
-            if evenement.type == pygame.MOUSEBUTTONDOWN:
+            # Clic de la souris - uniquement si c'est le tour du joueur humain
+            if evenement.type == pygame.MOUSEBUTTONDOWN and joueur_actuel == joueur_humain:
 
                 # On vérifie qu'il existe au moins un coup possible
                 if len(liste_coups_valides) > 0:
@@ -60,6 +72,30 @@ def lancer_jeu():
                         # Changement de joueur
                         joueur_actuel = -joueur_actuel
 
+        # Si c'est le tour de l'IA
+        if joueur_actuel == joueur_ia:
+            
+            # Recalculer les coups valides pour l'IA
+            liste_coups_valides = core.coups_valides(plateau, joueur_ia)
+            
+            if len(liste_coups_valides) > 0:
+                
+                # Délai de 1.5 secondes sans bloquer la boucle
+                temps_actuel = pygame.time.get_ticks()
+                
+                if temps_ia == 0:
+                    temps_ia = temps_actuel
+                
+                if temps_actuel - temps_ia >= 1500:  # 1500 ms = 1.5 secondes
+                    
+                    meilleur_coup = core.trouver_meilleur_coup(plateau, joueur_ia)
+                    
+                    if meilleur_coup is not None:
+                        core.jouer_coup(plateau, meilleur_coup[0], meilleur_coup[1], joueur_ia)
+                    
+                    joueur_actuel = -joueur_actuel
+                    temps_ia = 0  # Réinitialiser le délai
+
         # Si aucun coup possible, on passe le tour
         if len(liste_coups_valides) == 0:
 
@@ -68,6 +104,11 @@ def lancer_jeu():
             # Si l'autre joueur ne peut pas jouer non plus → fin du jeu
             if len(core.coups_valides(plateau, joueur_actuel)) == 0:
                 jeu_en_cours = False
+
+                score_noir, score_blanc = core.calculer_score(plateau)
+                gfx.ecran_fin(ecran, police, score_noir, score_blanc)
+
+
 
         # Dessin du plateau
         gfx.dessiner_plateau(ecran, plateau)

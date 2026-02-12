@@ -39,6 +39,40 @@ def creer_plateau():
 
     return plateau
 
+def trouver_meilleur_coup(plateau, joueur):
+
+    coups = coups_valides(plateau, joueur)
+
+    if len(coups) == 0:
+        return None
+
+    meilleur_coup = None
+    meilleur_score = -1
+
+    for coup in coups:
+
+        ligne = coup[0]
+        colonne = coup[1]
+
+        # On crée une copie du plateau pour simuler le coup
+        plateau_simule = [row[:] for row in plateau]
+
+        jouer_coup(plateau_simule, ligne, colonne, joueur)
+
+        score_noir, score_blanc = calculer_score(plateau_simule)
+
+        if joueur == PION_NOIR:
+            score = score_noir - score_blanc
+        else:
+            score = score_blanc - score_noir
+
+        if score > meilleur_score:
+            meilleur_score = score
+            meilleur_coup = (ligne, colonne)
+
+    return meilleur_coup
+
+
 # Vérifie si une position est bien à l'intérieur du plateau.
 def position_valide(ligne, colonne):
 
@@ -132,3 +166,21 @@ def calculer_score(plateau):
                 score_blanc = score_blanc + 1
 
     return score_noir, score_blanc
+# Trouve le meilleur coup pour l'IA (stratégie simple : retourne le plus de pions)
+def trouver_meilleur_coup(plateau, joueur):
+    """Choisit le coup qui retourne le plus de pions"""
+    coups = coups_valides(plateau, joueur)
+    
+    if len(coups) == 0:
+        return None
+    
+    meilleur_coup = coups[0]
+    max_pions = len(pions_a_retourner(plateau, coups[0][0], coups[0][1], joueur))
+    
+    for coup in coups[1:]:
+        nb_pions = len(pions_a_retourner(plateau, coup[0], coup[1], joueur))
+        if nb_pions > max_pions:
+            max_pions = nb_pions
+            meilleur_coup = coup
+    
+    return meilleur_coup

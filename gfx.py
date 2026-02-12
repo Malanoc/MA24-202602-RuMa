@@ -100,3 +100,70 @@ def dessiner_interface(ecran, police, joueur, plateau):
     position_y = core.BOARD_SIZE * TAILLE_CASE + 10
 
     ecran.blit(surface_texte, (10, position_y))
+
+def ecran_demarrage(ecran, police):
+
+    attente = True
+    
+    while attente:
+        
+        ecran.fill(COULEUR_PLATEAU)
+
+        texte = "Cliquez pour Commencer une partie d'Othello !"
+
+        surface_texte = police.render(texte, True, COULEUR_BLANC)
+
+        position_x = (core.BOARD_SIZE * TAILLE_CASE - surface_texte.get_width()) // 2
+        position_y = (core.BOARD_SIZE * TAILLE_CASE - surface_texte.get_height()) // 2
+
+        ecran.blit(surface_texte, (position_x, position_y))
+
+        pygame.display.flip()
+        
+        # Attendre un clic pour continuer
+        for evenement in pygame.event.get():
+            if evenement.type == pygame.QUIT:
+                pygame.quit()
+                exit()
+            
+            if evenement.type == pygame.MOUSEBUTTONDOWN:
+                attente = False
+
+def ecran_fin(ecran, police, score_noir, score_blanc):
+
+    ecran.fill(COULEUR_PLATEAU)
+
+    if score_noir > score_blanc:
+        resultat = "Noir gagne !"
+    elif score_blanc > score_noir:
+        resultat = "Blanc gagne !"
+    else:
+        resultat = "Match nul !"
+
+    texte = (
+        "Score Final - Noir : " + str(score_noir)
+        + "   Blanc : " + str(score_blanc)
+        + "   " + resultat
+    )
+
+    surface_texte = police.render(texte, True, COULEUR_BLANC)
+
+    position_x = (core.BOARD_SIZE * TAILLE_CASE - surface_texte.get_width()) // 2
+    position_y = (core.BOARD_SIZE * TAILLE_CASE - surface_texte.get_height()) // 2
+
+    ecran.blit(surface_texte, (position_x, position_y))
+
+    pygame.display.flip()
+
+    # Attendre un clic pour fermer
+    attente = True
+    while attente:
+        for evenement in pygame.event.get():
+            if evenement.type == pygame.QUIT:
+                pygame.quit()
+                exit()
+            
+            if evenement.type == pygame.MOUSEBUTTONDOWN:
+                attente = False
+
+
