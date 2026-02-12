@@ -4,53 +4,112 @@ import pygame
 import pygame.gfxdraw
 import core
 
-CELL_SIZE = 90
-GREEN = (20, 110, 20)
-BLACK_COLOR = (30, 30, 30)
-WHITE_COLOR = (245, 245, 245)
+# Taille d'une case en pixels
+TAILLE_CASE = 90
+
+# Couleurs utilisées
+COULEUR_PLATEAU = (20, 110, 20)
+COULEUR_NOIR = (30, 30, 30)
+COULEUR_BLANC = (245, 245, 245)
+COULEUR_LIGNES = (0, 0, 0)
 
 
-def init_window():
+def initialiser_fenetre():
+    """
+    Initialise la fenêtre pygame et retourne
+    l'écran ainsi que la police utilisée.
+    """
+
     pygame.init()
-    width = height = core.BOARD_SIZE * CELL_SIZE
-    screen = pygame.display.set_mode((width, height + 50))
+
+    largeur = core.BOARD_SIZE * TAILLE_CASE
+    hauteur = core.BOARD_SIZE * TAILLE_CASE
+
+    # On ajoute 50 pixels pour la zone d'affichage du score
+    ecran = pygame.display.set_mode((largeur, hauteur + 50))
+
     pygame.display.set_caption("Othello")
-    font = pygame.font.SysFont(None, 32)
-    return screen, font
+
+    police = pygame.font.SysFont(None, 32)
+
+    return ecran, police
 
 
-def draw_piece(surface, center, radius, color):
-    x, y = center
-    pygame.gfxdraw.filled_circle(surface, x, y, radius, color)
-    pygame.gfxdraw.aacircle(surface, x, y, radius, color)
+def dessiner_plateau(ecran, plateau):
+    """
+    Dessine le plateau et les pions.
+    """
 
+    # Remplir le fond avec la couleur verte
+    ecran.fill(COULEUR_PLATEAU)
 
-def draw_board(screen, board):
-    screen.fill(GREEN)
+    for ligne in range(core.BOARD_SIZE):
+        for colonne in range(core.BOARD_SIZE):
 
-    for x in range(core.BOARD_SIZE):
-        for y in range(core.BOARD_SIZE):
-            rect = pygame.Rect(
-                x * CELL_SIZE,
-                y * CELL_SIZE,
-                CELL_SIZE,
-                CELL_SIZE
+            position_x = colonne * TAILLE_CASE
+            position_y = ligne * TAILLE_CASE
+
+            rectangle = pygame.Rect(
+                position_x,
+                position_y,
+                TAILLE_CASE,
+                TAILLE_CASE
             )
 
-            pygame.draw.rect(screen, (0, 0, 0), rect, 1)
+            # Dessin des lignes du plateau
+            pygame.draw.rect(ecran, COULEUR_LIGNES, rectangle, 1)
 
-            if board[x][y] != core.EMPTY:
-                color = BLACK_COLOR if board[x][y] == core.BLACK else WHITE_COLOR
-                draw_piece(
-                    screen,
-                    rect.center,
-                    CELL_SIZE // 2 - 10,
-                    color
+            # Dessin des pions si la case n'est pas vide
+            if plateau[ligne][colonne] != core.CASE_VIDE:
+
+                if plateau[ligne][colonne] == core.PION_NOIR:
+                    couleur_pion = COULEUR_NOIR
+                else:
+                    couleur_pion = COULEUR_BLANC
+
+                dessiner_pion(
+                    ecran,
+                    rectangle.center,
+                    TAILLE_CASE // 2 - 10,
+                    couleur_pion
                 )
 
 
-def draw_ui(screen, font, player, board):
-    black, white = core.score(board)
-    text = f"Noir: {black}   Blanc: {white}   Tour: {'Noir' if player == core.BLACK else 'Blanc'}"
-    img = font.render(text, True, (0, 0, 0))
-    screen.blit(img, (10, core.BOARD_SIZE * CELL_SIZE + 10))
+def dessiner_pion(ecran, centre, rayon, couleur):
+    """
+    Dessine un pion avec un rendu lisse (anti-aliasing).
+    """
+
+    centre_x = centre[0]
+    centre_y = centre[1]
+
+    # Cercle rempli
+    pygame.gfxdraw.filled_circle(ecran, centre_x, centre_y, rayon, couleur)
+
+    # Contour lisse
+    pygame.gfxdraw.aacircle(ecran, centre_x, centre_y, rayon, couleur)
+
+
+def dessiner_interface(ecran, police, joueur, plateau):
+    """
+    Affiche le score et indique le joueur actuel.
+    """
+
+    score_noir, score_blanc = core.calculer_score(plateau)
+
+    if joueur == core.PION_NOIR:
+        texte_joueur = "Noir"
+    else:
+        texte_joueur = "Blanc"
+
+    texte = (
+        "Noir : " + str(score_noir)
+        + "   Blanc : " + str(score_blanc)
+        + "   Tour : " + texte_joueur
+    )
+
+    surface_texte = police.render(texte, True, COULEUR_LIGNES)
+
+    position_y = core.BOARD_SIZE * TAILLE_CASE + 10
+
+    ecran.blit(surface_texte, (10, position_y))
