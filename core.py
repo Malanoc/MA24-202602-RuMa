@@ -1,11 +1,14 @@
 # core.py
 
+# Taille du plateau (8 lignes et 8 colonnes)
 BOARD_SIZE = 8
 
-EMPTY = 0
-BLACK = 1
-WHITE = -1
+# Valeurs utilisées dans le tableau
+CASE_VIDE = 0
+PION_NOIR = 1
+PION_BLANC = -1
 
+# Les 8 directions possibles autour d’une case
 DIRECTIONS = [
     (-1, -1), (-1, 0), (-1, 1),
     (0, -1),           (0, 1),
@@ -13,62 +16,138 @@ DIRECTIONS = [
 ]
 
 
-def create_board():
-    board = [[EMPTY for _ in range(BOARD_SIZE)] for _ in range(BOARD_SIZE)]
+def creer_plateau():
+    """
+    Crée un plateau vide 8x8
+    puis place les 4 pions de départ.
+    """
 
-    board[3][3] = WHITE
-    board[4][4] = WHITE
-    board[3][4] = BLACK
-    board[4][3] = BLACK
+    plateau = []
 
-    return board
+    # Création des 8 lignes
+    for ligne in range(BOARD_SIZE):
 
+        nouvelle_ligne = []
 
-def on_board(x, y):
-    return 0 <= x < BOARD_SIZE and 0 <= y < BOARD_SIZE
+        # Création des 8 colonnes
+        for colonne in range(BOARD_SIZE):
+            nouvelle_ligne.append(CASE_VIDE)
 
+        plateau.append(nouvelle_ligne)
 
-def flips(board, x, y, player):
-    pieces = []
+    # Placement des 4 pions initiaux au centre
+    plateau[3][3] = PION_BLANC
+    plateau[4][4] = PION_BLANC
+    plateau[3][4] = PION_NOIR
+    plateau[4][3] = PION_NOIR
 
-    for dx, dy in DIRECTIONS:
-        nx, ny = x + dx, y + dy
-        temp = []
-
-        while on_board(nx, ny) and board[nx][ny] == -player:
-            temp.append((nx, ny))
-            nx += dx
-            ny += dy
-
-        if on_board(nx, ny) and board[nx][ny] == player and temp:
-            pieces.extend(temp)
-
-    return pieces
+    return plateau
 
 
-def valid_moves(board, player):
-    moves = []
-    for x in range(BOARD_SIZE):
-        for y in range(BOARD_SIZE):
-            if board[x][y] == EMPTY and flips(board, x, y, player):
-                moves.append((x, y))
-    return moves
-
-
-def apply_move(board, x, y, player):
-    to_flip = flips(board, x, y, player)
-
-    if not to_flip:
+def position_valide(ligne, colonne):
+    """
+    Vérifie si une position est bien à l'intérieur du plateau.
+    """
+    if ligne >= 0 and ligne < BOARD_SIZE and colonne >= 0 and colonne < BOARD_SIZE:
+        return True
+    else:
         return False
 
-    board[x][y] = player
-    for fx, fy in to_flip:
-        board[fx][fy] = player
+
+def pions_a_retourner(plateau, ligne, colonne, joueur):
+    """
+    Retourne la liste des pions qui seront retournés
+    si le joueur joue à la position donnée.
+    """
+
+    liste_pions = []
+
+    # On teste les 8 directions
+    for direction in DIRECTIONS:
+
+        delta_ligne = direction[0]
+        delta_colonne = direction[1]
+
+        ligne_courante = ligne + delta_ligne
+        colonne_courante = colonne + delta_colonne
+
+        pions_temp = []
+
+        # On avance tant qu'on trouve des pions adverses
+        while position_valide(ligne_courante, colonne_courante) and \
+              plateau[ligne_courante][colonne_courante] == -joueur:
+
+            pions_temp.append((ligne_courante, colonne_courante))
+
+            ligne_courante = ligne_courante + delta_ligne
+            colonne_courante = colonne_courante + delta_colonne
+
+        # Si on tombe sur un pion du joueur, la capture est valide
+        if position_valide(ligne_courante, colonne_courante) and \
+           plateau[ligne_courante][colonne_courante] == joueur and \
+           len(pions_temp) > 0:
+
+            for pion in pions_temp:
+                liste_pions.append(pion)
+
+    return liste_pions
+
+
+def coups_valides(plateau, joueur):
+    """
+    Retourne la liste des coups possibles pour le joueur.
+    """
+
+    liste_coups = []
+
+    for ligne in range(BOARD_SIZE):
+        for colonne in range(BOARD_SIZE):
+
+            if plateau[ligne][colonne] == CASE_VIDE:
+
+                pions = pions_a_retourner(plateau, ligne, colonne, joueur)
+
+                if len(pions) > 0:
+                    liste_coups.append((ligne, colonne))
+
+    return liste_coups
+
+
+def jouer_coup(plateau, ligne, colonne, joueur):
+    """
+    Applique un coup sur le plateau.
+    """
+
+    pions = pions_a_retourner(plateau, ligne, colonne, joueur)
+
+    if len(pions) == 0:
+        return False
+
+    plateau[ligne][colonne] = joueur
+
+    for position in pions:
+        l = position[0]
+        c = position[1]
+        plateau[l][c] = joueur
 
     return True
 
 
-def score(board):
-    black = sum(row.count(BLACK) for row in board)
-    white = sum(row.count(WHITE) for row in board)
-    return black, white
+def calculer_score(plateau):
+    """
+    Compte le nombre de pions noirs et blancs.
+    """
+
+    score_noir = 0
+    score_blanc = 0
+
+    for ligne in plateau:
+        for case in ligne:
+
+            if case == PION_NOIR:
+                score_noir = score_noir + 1
+
+            if case == PION_BLANC:
+                score_blanc = score_blanc + 1
+
+    return score_noir, score_blanc
