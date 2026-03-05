@@ -1,4 +1,9 @@
-# main.py
+#======================================================================================================
+#Auteur : Ruben Ten Cate, Marc Schilter
+#Date : 26.02.2026
+#Présentation du programme : Programme du jeu Othello avec une interface graphique utilisant Pygame.
+# Le code gère la logique du jeu, les interactions utilisateur et l'affichage du plateau et des pions.
+#======================================================================================================
 
 import pygame
 import sys
@@ -111,7 +116,7 @@ def lancer_jeu():
 
 
         # Dessin du plateau
-        gfx.dessiner_plateau(ecran, plateau)
+        gfx.dessiner_plateau(ecran, plateau, joueur_humain)
 
         # Dessin de l'interface (score et tour)
         gfx.dessiner_interface(ecran, police, joueur_actuel, plateau)

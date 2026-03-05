@@ -1,4 +1,10 @@
-# gfx.py
+#======================================================================================================
+#Auteur : Ruben Ten Cate, Marc Schilter
+#Date : 26.02.2026
+#Présentation du programme : Programme du jeu Othello avec une interface graphique utilisant Pygame.
+# Le code gère la logique du jeu, les interactions utilisateur et l'affichage du plateau et des pions.
+#======================================================================================================
+import pygame
 
 import pygame
 import pygame.gfxdraw
@@ -15,6 +21,10 @@ COULEUR_LIGNES = (0, 0, 0)
 
 #Initialise la fenêtre pygame et retourne l'écran ainsi que la police utilisée.
 def initialiser_fenetre():
+    """
+    Initialise la fenêtre pygame et retourne
+    l'écran ainsi que la police utilisée.
+    """
 
     pygame.init()
 
@@ -31,7 +41,7 @@ def initialiser_fenetre():
     return ecran, police
 
 #Dessine le plateau et les pions.
-def dessiner_plateau(ecran, plateau):
+def dessiner_plateau(ecran, plateau, joueur):
 
     # Remplir le fond avec la couleur verte
     ecran.fill(COULEUR_PLATEAU)
@@ -39,6 +49,7 @@ def dessiner_plateau(ecran, plateau):
     for ligne in range(core.BOARD_SIZE):
         for colonne in range(core.BOARD_SIZE):
 
+            
             position_x = colonne * TAILLE_CASE
             position_y = ligne * TAILLE_CASE
 
@@ -66,9 +77,23 @@ def dessiner_plateau(ecran, plateau):
                     TAILLE_CASE // 2 - 10,
                     couleur_pion
                 )
+    # Dessin des coups possibles pour le joueur actuel
 
-#  Dessine un pion avec un rendu lisse (anti-aliasing).
+    coups = core.coups_valides(plateau, joueur)
+
+    for (l, c) in coups:
+        x = c * TAILLE_CASE + TAILLE_CASE // 2
+        y = l * TAILLE_CASE + TAILLE_CASE // 2
+
+        # Petit cercle gris
+        pygame.draw.circle(ecran, (180, 180, 180), (x, y), 8)
+
+
+
 def dessiner_pion(ecran, centre, rayon, couleur):
+    """
+    Dessine un pion avec un rendu lisse (anti-aliasing).
+    """
 
     centre_x = centre[0]
     centre_y = centre[1]
@@ -79,9 +104,11 @@ def dessiner_pion(ecran, centre, rayon, couleur):
     # Contour lisse
     pygame.gfxdraw.aacircle(ecran, centre_x, centre_y, rayon, couleur)
 
-#  Affiche le score et indique le joueur actuel.
-def dessiner_interface(ecran, police, joueur, plateau):
 
+def dessiner_interface(ecran, police, joueur, plateau):
+    """
+    Affiche le score et indique le joueur actuel.
+    """
     score_noir, score_blanc = core.calculer_score(plateau)
 
     if joueur == core.PION_NOIR:
@@ -102,32 +129,55 @@ def dessiner_interface(ecran, police, joueur, plateau):
     ecran.blit(surface_texte, (10, position_y))
 
 def ecran_demarrage(ecran, police):
+    """
+    Affiche un écran de démarrage et attend un clic pour commencer la partie.
+    """
 
     attente = True
     
+    largeur = core.BOARD_SIZE * TAILLE_CASE
+    hauteur = core.BOARD_SIZE * TAILLE_CASE
+
+    # Titre du jeu 
+
+    police_titre = pygame.font.SysFont(None, 80)
+    texte_titre = "Othello"
+    surface_titre = police_titre.render(texte_titre, True, COULEUR_BLANC)
+    rect_titre = surface_titre.get_rect(center=(largeur // 2, hauteur // 4))
+
+
+    # Texte de démarrage
+
+    texte = "Démarrer la partie !"
+    surface_texte = police.render(texte, True, COULEUR_BLANC)
+
+    # Rectangle de fond pour le texte
+    rect_fond = surface_texte.get_rect()
+    rect_fond.inflate_ip(50, 50)  # Ajouter une marge autour du texte
+    rect_fond.center = (largeur // 2, hauteur // 2)
+
     while attente:
-        
         ecran.fill(COULEUR_PLATEAU)
 
-        texte = "Cliquez pour Commencer une partie d'Othello !"
+        # Dessiner le titre
+        ecran.blit(surface_titre, rect_titre)
 
-        surface_texte = police.render(texte, True, COULEUR_BLANC)
-
-        position_x = (core.BOARD_SIZE * TAILLE_CASE - surface_texte.get_width()) // 2
-        position_y = (core.BOARD_SIZE * TAILLE_CASE - surface_texte.get_height()) // 2
-
-        ecran.blit(surface_texte, (position_x, position_y))
+        # Dessiner bouton noir centré
+        pygame.draw.rect(ecran, COULEUR_NOIR, rect_fond)
+        ecran.blit(surface_texte, surface_texte.get_rect(center=rect_fond.center))
 
         pygame.display.flip()
         
         # Attendre un clic pour continuer
-        for evenement in pygame.event.get():
-            if evenement.type == pygame.QUIT:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
                 pygame.quit()
                 exit()
-            
-            if evenement.type == pygame.MOUSEBUTTONDOWN:
-                attente = False
+
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                pos = pygame.mouse.get_pos()   # Récupérer la position du clic
+                if rect_fond.collidepoint(pos):
+                    return  # Quitter la fonction pour démarrer la partie
 
 def ecran_fin(ecran, police, score_noir, score_blanc):
 

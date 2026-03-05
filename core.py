@@ -1,4 +1,9 @@
-# core.py
+#======================================================================================================
+#Auteur : Ruben Ten Cate, Marc Schilter
+#Date : 26.02.2026
+#Présentation du programme : Programme du jeu Othello avec une interface graphique utilisant Pygame.
+# Le code gère la logique du jeu, les interactions utilisateur et l'affichage du plateau et des pions.
+#======================================================================================================
 
 # Taille du plateau (8 lignes et 8 colonnes)
 BOARD_SIZE = 8
@@ -41,35 +46,48 @@ def creer_plateau():
 
 def trouver_meilleur_coup(plateau, joueur):
 
+    # On récupère tous les coups possibles pour ce joueur
     coups = coups_valides(plateau, joueur)
 
+    # S'il n'y a aucun coup possible, on renvoie None
     if len(coups) == 0:
         return None
 
+    # On prépare deux variables pour garder le meilleur coup trouvé
     meilleur_coup = None
-    meilleur_score = -1
+    meilleur_score = -1  # score très bas pour être sûr que le premier coup sera meilleur
 
+    # On teste chaque coup possible
     for coup in coups:
 
         ligne = coup[0]
         colonne = coup[1]
 
         # On crée une copie du plateau pour simuler le coup
+        # (sinon on modifierait le vrai plateau)
         plateau_simule = [row[:] for row in plateau]
 
+        # On joue le coup sur le plateau simulé
         jouer_coup(plateau_simule, ligne, colonne, joueur)
 
+        # On calcule le score après avoir joué ce coup
         score_noir, score_blanc = calculer_score(plateau_simule)
 
+        # On calcule un score "avantage" pour le joueur
+        # Noir veut maximiser (noir - blanc)
+        # Blanc veut maximiser (blanc - noir)
         if joueur == PION_NOIR:
             score = score_noir - score_blanc
         else:
             score = score_blanc - score_noir
 
+        # Si ce coup donne un meilleur score que les précédents,
+        # on le garde comme meilleur coup
         if score > meilleur_score:
             meilleur_score = score
             meilleur_coup = (ligne, colonne)
 
+    # On renvoie le coup qui donne le meilleur résultat
     return meilleur_coup
 
 
