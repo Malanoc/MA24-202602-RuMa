@@ -141,9 +141,24 @@ def ecran_demarrage(ecran, police):
     # Titre du jeu 
 
     police_titre = pygame.font.SysFont(None, 80)
-    texte_titre = "Othello"
-    surface_titre = police_titre.render(texte_titre, True, COULEUR_BLANC)
+    surface_titre = police_titre.render("Othello", True, COULEUR_BLANC)
     rect_titre = surface_titre.get_rect(center=(largeur // 2, hauteur // 4))
+
+    # Boutons du menu
+
+    # Bouton 1 : Jouer contre l'IA
+
+    texte_ia = police.render("Jouer contre l'IA", True, COULEUR_BLANC)
+    rect_ia = texte_ia.get_rect()
+    rect_ia.inflate_ip(40, 20)  # Ajouter une marge autour du texte
+    rect_ia.center = (largeur // 2, hauteur // 2)
+
+    # Bouton 2 : Jouer contre un ami
+
+    texte_ami = police.render("Jouer contre un ami", True, COULEUR_BLANC)
+    rect_ami = texte_ami.get_rect()
+    rect_ami.inflate_ip(40, 20)  # Ajouter une marge autour du texte
+    rect_ami.center = (largeur // 2, hauteur // 2 + 100)
 
 
     # Texte de démarrage
@@ -162,22 +177,31 @@ def ecran_demarrage(ecran, police):
         # Dessiner le titre
         ecran.blit(surface_titre, rect_titre)
 
-        # Dessiner bouton noir centré
-        pygame.draw.rect(ecran, COULEUR_NOIR, rect_fond)
-        ecran.blit(surface_texte, surface_texte.get_rect(center=rect_fond.center))
+        # Bouton IA
+        pygame.draw.rect(ecran, COULEUR_NOIR, rect_ia)
+        ecran.blit(texte_ia, texte_ia.get_rect(center=rect_ia.center))
+
+        # Bouton Ami
+
+        pygame.draw.rect(ecran, COULEUR_NOIR, rect_ami)
+        ecran.blit(texte_ami, texte_ami.get_rect(center=rect_ami.center))
 
         pygame.display.flip()
         
-        # Attendre un clic pour continuer
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 exit()
 
             if event.type == pygame.MOUSEBUTTONDOWN:
-                pos = pygame.mouse.get_pos()   # Récupérer la position du clic
-                if rect_fond.collidepoint(pos):
-                    return  # Quitter la fonction pour démarrer la partie
+                pos = pygame.mouse.get_pos()
+
+                if rect_ia.collidepoint(pos):
+                    return "ia"
+
+                if rect_ami.collidepoint(pos):
+                    return "ami"
+
 
 def ecran_fin(ecran, police, score_noir, score_blanc):
 
