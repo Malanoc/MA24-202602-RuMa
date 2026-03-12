@@ -5,8 +5,6 @@
 # Le code gère la logique du jeu, les interactions utilisateur et l'affichage du plateau et des pions.
 #======================================================================================================
 import pygame
-
-import pygame
 import pygame.gfxdraw
 import core
 
