@@ -36,7 +36,8 @@ def initialiser_fenetre():
 
     pygame.display.set_caption("Othello")
 
-    police = pygame.font.SysFont(None, 32)
+    police = pygame.font.SysFont(None, 32) # Variable pour la taille de texte (afficher les scores pendant le jeu)
+    police_demarrage = pygame.font.SysFont(None, 48) # Variable pour la police de texte dans l'écran de démarrage
 
     return ecran, police
 
@@ -81,12 +82,18 @@ def dessiner_plateau(ecran, plateau, joueur):
 
     coups = core.coups_valides(plateau, joueur)
 
+    # Déterminer la couleur des points selon le joueur
+    if joueur == core.PION_NOIR:
+        couleur_coup = COULEUR_NOIR
+    else:
+        couleur_coup = COULEUR_BLANC
+
     for (l, c) in coups:
         x = c * TAILLE_CASE + TAILLE_CASE // 2
         y = l * TAILLE_CASE + TAILLE_CASE // 2
 
-        # Petit cercle gris
-        pygame.draw.circle(ecran, (180, 180, 180), (x, y), 8)
+        # Petit cercle de la couleur du joueur
+        pygame.draw.circle(ecran, couleur_coup, (x, y), 8)
 
 
 
@@ -128,7 +135,7 @@ def dessiner_interface(ecran, police, joueur, plateau):
 
     ecran.blit(surface_texte, (10, position_y))
 
-def ecran_demarrage(ecran, police):
+def ecran_demarrage(ecran, police_demarrage):
     """
     Affiche un écran de démarrage et attend un clic pour commencer la partie.
     """
@@ -141,35 +148,29 @@ def ecran_demarrage(ecran, police):
     # Titre du jeu 
 
     police_titre = pygame.font.SysFont(None, 80)
-    surface_titre = police_titre.render("Othello", True, COULEUR_BLANC)
+    surface_titre = police_titre.render("Jouer à Othello", True, COULEUR_BLANC)
     rect_titre = surface_titre.get_rect(center=(largeur // 2, hauteur // 4))
 
     # Boutons du menu
 
     # Bouton 1 : Jouer contre l'IA
 
-    texte_ia = police.render("Jouer contre l'IA", True, COULEUR_BLANC)
+    texte_ia = police_demarrage.render("Jouer contre l'IA", True, COULEUR_BLANC)
     rect_ia = texte_ia.get_rect()
-    rect_ia.inflate_ip(40, 20)  # Ajouter une marge autour du texte
+    rect_ia.inflate_ip(80, 40)  # Ajouter une marge autour du texte
     rect_ia.center = (largeur // 2, hauteur // 2)
 
     # Bouton 2 : Jouer contre un ami
 
-    texte_ami = police.render("Jouer contre un ami", True, COULEUR_BLANC)
+    texte_ami = police_demarrage.render("Jouer contre un ami", True, COULEUR_BLANC)
     rect_ami = texte_ami.get_rect()
-    rect_ami.inflate_ip(40, 20)  # Ajouter une marge autour du texte
+    rect_ami.inflate_ip(80, 40)  # Ajouter une marge autour du texte
     rect_ami.center = (largeur // 2, hauteur // 2 + 100)
 
 
     # Texte de démarrage
 
-    texte = "Démarrer la partie !"
-    surface_texte = police.render(texte, True, COULEUR_BLANC)
-
-    # Rectangle de fond pour le texte
-    rect_fond = surface_texte.get_rect()
-    rect_fond.inflate_ip(50, 50)  # Ajouter une marge autour du texte
-    rect_fond.center = (largeur // 2, hauteur // 2)
+    # (code inutile/commenté précédemment, on ne l'affiche plus)
 
     while attente:
         ecran.fill(COULEUR_PLATEAU)
