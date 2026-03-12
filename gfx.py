@@ -204,6 +204,46 @@ def ecran_demarrage(ecran, police_demarrage):
                     return "ami"
 
 
+def choisir_couleur(ecran, police_demarrage):
+    """Affiche un écran qui permet au joueur de choisir noir ou blanc."""
+
+    attente = True
+    largeur = core.BOARD_SIZE * TAILLE_CASE
+    hauteur = core.BOARD_SIZE * TAILLE_CASE
+
+    texte_noir = police_demarrage.render("Jouer Noir", True, COULEUR_BLANC)
+    rect_noir = texte_noir.get_rect()
+    rect_noir.inflate_ip(80, 40)
+    rect_noir.center = (largeur // 2, hauteur // 2)
+
+    texte_blanc = police_demarrage.render("Jouer Blanc", True, COULEUR_BLANC)
+    rect_blanc = texte_blanc.get_rect()
+    rect_blanc.inflate_ip(80, 40)
+    rect_blanc.center = (largeur // 2, hauteur // 2 + 100)
+
+    while attente:
+        ecran.fill(COULEUR_PLATEAU)
+
+        pygame.draw.rect(ecran, COULEUR_NOIR, rect_noir)
+        ecran.blit(texte_noir, texte_noir.get_rect(center=rect_noir.center))
+
+        pygame.draw.rect(ecran, COULEUR_NOIR, rect_blanc)
+        ecran.blit(texte_blanc, texte_blanc.get_rect(center=rect_blanc.center))
+
+        pygame.display.flip()
+
+        for ev in pygame.event.get():
+            if ev.type == pygame.QUIT:
+                pygame.quit()
+                exit()
+            if ev.type == pygame.MOUSEBUTTONDOWN:
+                pos = pygame.mouse.get_pos()
+                if rect_noir.collidepoint(pos):
+                    return core.PION_NOIR
+                if rect_blanc.collidepoint(pos):
+                    return core.PION_BLANC
+
+
 def ecran_fin(ecran, police, score_noir, score_blanc):
 
     ecran.fill(COULEUR_PLATEAU)

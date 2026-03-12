@@ -34,7 +34,10 @@ def lancer_jeu():
     mode_jeu = gfx.ecran_demarrage(ecran, police)
     
     if mode_jeu == "ia":
-        lancer_jeu_ia(ecran, police, horloge, plateau, joueur_actuel)
+        # Si on joue contre l'IA, demander au joueur sa couleur
+        couleur_humain = gfx.choisir_couleur(ecran, police)
+        couleur_ia = -couleur_humain
+        lancer_jeu_ia(ecran, police, horloge, plateau, joueur_actuel, couleur_humain, couleur_ia)
     else:  # mode_jeu == "ami"
         lancer_jeu_ami(ecran, police, horloge, plateau, joueur_actuel)
 
@@ -42,13 +45,9 @@ def lancer_jeu():
     pygame.quit()
 
 
-def lancer_jeu_ia(ecran, police, horloge, plateau, joueur_actuel):
-    """Lance une partie contre l'IA"""
+def lancer_jeu_ia(ecran, police, horloge, plateau, joueur_actuel, joueur_humain, joueur_ia):
+    """Lance une partie contre l'IA en utilisant les couleurs fournies pour humain et IA"""
     
-    # Joueur IA 
-    joueur_humain = core.PION_NOIR
-    joueur_ia = core.PION_BLANC
-
     jeu_en_cours = True
     
     temps_ia = 0  # Pour gérer le délai de l'IA
