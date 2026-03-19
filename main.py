@@ -27,30 +27,35 @@ def lancer_jeu():
     # Horloge pour limiter les FPS
     horloge = pygame.time.Clock()
 
-    # Création du plateau de départ
-    plateau = core.creer_plateau()
+    jeu_continue = True
 
-    # Le joueur noir commence toujours
-    joueur_actuel = core.PION_NOIR
+    # Boucle principale pour permettre de recommencer le jeu
+    while jeu_continue:
 
-    # Écran de démarrage : choix du mode de jeu
-    mode_jeu = gfx.ecran_demarrage(ecran, police)
+        # Écran de démarrage : choix du mode de jeu
+        mode_jeu = gfx.ecran_demarrage(ecran, police)
 
-    # ---------------- MODE IA ----------------
-    if mode_jeu == "ia":
+        # Création du plateau de départ
+        plateau = core.creer_plateau()
 
-        # Choix de la couleur du joueur humain
-        couleur_humain = gfx.choisir_couleur(ecran, police)
+        # Le joueur noir commence toujours
+        joueur_actuel = core.PION_NOIR
 
-        # L'IA prend la couleur opposée
-        couleur_ia = -couleur_humain
+        # ---------------- MODE IA ----------------
+        if mode_jeu == "ia":
 
-        # Lancement du mode contre l'IA
-        lancer_jeu_ia(ecran, police, horloge, plateau, joueur_actuel, couleur_humain, couleur_ia)
+            # Choix de la couleur du joueur humain
+            couleur_humain = gfx.choisir_couleur(ecran, police)
 
-    # ---------------- MODE 2 JOUEURS ----------------
-    else:
-        lancer_jeu_ami(ecran, police, horloge, plateau, joueur_actuel)
+            # L'IA prend la couleur opposée
+            couleur_ia = -couleur_humain
+
+            # Lancement du mode contre l'IA
+            jeu_continue = lancer_jeu_ia(ecran, police, horloge, plateau, joueur_actuel, couleur_humain, couleur_ia)
+
+        # ---------------- MODE 2 JOUEURS ----------------
+        else:
+            jeu_continue = lancer_jeu_ami(ecran, police, horloge, plateau, joueur_actuel)
 
     # Fermeture de pygame à la fin
     pygame.quit()
@@ -141,7 +146,8 @@ def lancer_jeu_ia(ecran, police, horloge, plateau, joueur_actuel, joueur_humain,
                 jeu_en_cours = False
 
                 score_noir, score_blanc = core.calculer_score(plateau)
-                gfx.ecran_fin(ecran, police, score_noir, score_blanc)
+                recommencer = gfx.ecran_fin(ecran, police, score_noir, score_blanc)
+                return recommencer
 
         # ----------- Affichage -----------
         gfx.dessiner_plateau(ecran, plateau, joueur_humain)
@@ -149,7 +155,7 @@ def lancer_jeu_ia(ecran, police, horloge, plateau, joueur_actuel, joueur_humain,
 
         pygame.display.flip()
 
-    pygame.quit()
+    return True
 
 
 # ----------------------------------------------------------------------------------
@@ -198,13 +204,16 @@ def lancer_jeu_ami(ecran, police, horloge, plateau, joueur_actuel):
                 jeu_en_cours = False
 
                 score_noir, score_blanc = core.calculer_score(plateau)
-                gfx.ecran_fin(ecran, police, score_noir, score_blanc)
+                recommencer = gfx.ecran_fin(ecran, police, score_noir, score_blanc)
+                return recommencer
 
         # Affichage
         gfx.dessiner_plateau(ecran, plateau, joueur_actuel)
         gfx.dessiner_interface(ecran, police, joueur_actuel, plateau)
 
         pygame.display.flip()
+
+    return True
 
 
 # ----------------------------------------------------------------------------------

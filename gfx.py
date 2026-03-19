@@ -178,14 +178,12 @@ def ecran_demarrage(ecran, police_demarrage):
 
     # Bouton IA
     texte_ia = police_demarrage.render("Jouer contre l'IA", True, COULEUR_BLANC)
-    rect_ia = texte_ia.get_rect()
-    rect_ia.inflate_ip(80, 40)
+    rect_ia = pygame.Rect(0, 0, 300, 60)
     rect_ia.center = (largeur // 2, hauteur // 2)
 
     # Bouton Ami
     texte_ami = police_demarrage.render("Jouer contre un ami", True, COULEUR_BLANC)
-    rect_ami = texte_ami.get_rect()
-    rect_ami.inflate_ip(80, 40)
+    rect_ami = pygame.Rect(0, 0, 300, 60)
     rect_ami.center = (largeur // 2, hauteur // 2 + 100)
 
     while attente:
@@ -232,14 +230,12 @@ def choisir_couleur(ecran, police_demarrage):
 
     # Bouton Noir
     texte_noir = police_demarrage.render("Jouer Noir", True, COULEUR_BLANC)
-    rect_noir = texte_noir.get_rect()
-    rect_noir.inflate_ip(80, 40)
+    rect_noir = pygame.Rect(0, 0, 250, 60)
     rect_noir.center = (largeur // 2, hauteur // 2)
 
     # Bouton Blanc
     texte_blanc = police_demarrage.render("Jouer Blanc", True, COULEUR_BLANC)
-    rect_blanc = texte_blanc.get_rect()
-    rect_blanc.inflate_ip(80, 40)
+    rect_blanc = pygame.Rect(0, 0, 250, 60)
     rect_blanc.center = (largeur // 2, hauteur // 2 + 100)
 
     while attente:
@@ -274,40 +270,98 @@ def choisir_couleur(ecran, police_demarrage):
 # ----------------------------------------------------------------------------------
 def ecran_fin(ecran, police, score_noir, score_blanc):
 
+    attente = True
+
+    largeur = core.BOARD_SIZE * TAILLE_CASE
+    hauteur = core.BOARD_SIZE * TAILLE_CASE
+
+    police_demarrage = pygame.font.SysFont(None, 48)
+    police_score = pygame.font.SysFont(None, 64)
+
     ecran.fill(COULEUR_PLATEAU)
+
+    # Titre
+    police_titre = pygame.font.SysFont(None, 80)
+    surface_titre = police_titre.render("Fin du Jeu", True, COULEUR_BLANC)
+    rect_titre = surface_titre.get_rect(center=(largeur // 2, hauteur // 8))
 
     # Détermination du gagnant
     if score_noir > score_blanc:
         resultat = "Noir gagne !"
+        couleur_resultat = COULEUR_NOIR
     elif score_blanc > score_noir:
         resultat = "Blanc gagne !"
+        couleur_resultat = COULEUR_BLANC
     else:
         resultat = "Match nul !"
+        couleur_resultat = COULEUR_LIGNES
 
-    texte = (
-        "Score Final - Noir : " + str(score_noir)
-        + "   Blanc : " + str(score_blanc)
-        + "   " + resultat
-    )
+    # Affichage du résultat
+    surface_resultat = police_demarrage.render(resultat, True, couleur_resultat)
+    rect_resultat = surface_resultat.get_rect(center=(largeur // 2, hauteur // 3))
 
-    surface_texte = police.render(texte, True, COULEUR_BLANC)
+    # Affichage des scores
+    surface_score_noir = police_score.render(str(score_noir), True, COULEUR_NOIR)
+    rect_score_noir = surface_score_noir.get_rect(center=(largeur // 4, hauteur // 2))
 
-    # Centrage du texte
-    position_x = (core.BOARD_SIZE * TAILLE_CASE - surface_texte.get_width()) // 2
-    position_y = (core.BOARD_SIZE * TAILLE_CASE - surface_texte.get_height()) // 2
+    surface_score_blanc = police_score.render(str(score_blanc), True, COULEUR_BLANC)
+    rect_score_blanc = surface_score_blanc.get_rect(center=(3 * largeur // 4, hauteur // 2))
 
-    ecran.blit(surface_texte, (position_x, position_y))
+    # Labels pour les scores
+    surface_label_noir = police_demarrage.render("Noir", True, COULEUR_NOIR)
+    rect_label_noir = surface_label_noir.get_rect(center=(largeur // 4, hauteur // 2 + 60))
 
-    pygame.display.flip()
+    surface_label_blanc = police_demarrage.render("Blanc", True, COULEUR_BLANC)
+    rect_label_blanc = surface_label_blanc.get_rect(center=(3 * largeur // 4, hauteur // 2 + 60))
 
-    # Attente d’un clic pour fermer
-    attente = True
+    # Bouton Recommencer
+    texte_recommencer = police_demarrage.render("Recommencer", True, COULEUR_BLANC)
+    rect_recommencer = pygame.Rect(0, 0, 250, 60)
+    rect_recommencer.center = (largeur // 2, hauteur - 100)
+
+    # Bouton Quitter Jeu
+    texte_quitter = police_demarrage.render("Quitter", True, COULEUR_BLANC)
+    rect_quitter = pygame.Rect(0, 0, 250, 60)
+    rect_quitter.center = (largeur // 2, hauteur - 30)
+
     while attente:
-        for evenement in pygame.event.get():
+        ecran.fill(COULEUR_PLATEAU)
 
-            if evenement.type == pygame.QUIT:
+        # Dessin du titre
+        ecran.blit(surface_titre, rect_titre)
+
+        # Dessin du résultat
+        ecran.blit(surface_resultat, rect_resultat)
+
+        # Dessin des scores
+        ecran.blit(surface_score_noir, rect_score_noir)
+        ecran.blit(surface_score_blanc, rect_score_blanc)
+
+        # Dessin des labels
+        ecran.blit(surface_label_noir, rect_label_noir)
+        ecran.blit(surface_label_blanc, rect_label_blanc)
+
+        # Dessin des boutons
+        pygame.draw.rect(ecran, COULEUR_NOIR, rect_recommencer)
+        ecran.blit(texte_recommencer, texte_recommencer.get_rect(center=rect_recommencer.center))
+
+        pygame.draw.rect(ecran, COULEUR_NOIR, rect_quitter)
+        ecran.blit(texte_quitter, texte_quitter.get_rect(center=rect_quitter.center))
+
+        pygame.display.flip()
+
+        # Gestion des clics
+        for event in pygame.event.get():
+
+            if event.type == pygame.QUIT:
                 pygame.quit()
                 exit()
 
-            if evenement.type == pygame.MOUSEBUTTONDOWN:
-                attente = False
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                pos = pygame.mouse.get_pos()
+
+                if rect_recommencer.collidepoint(pos):
+                    return True
+
+                if rect_quitter.collidepoint(pos):
+                    return False

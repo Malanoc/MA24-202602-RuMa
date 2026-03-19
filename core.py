@@ -52,50 +52,6 @@ def creer_plateau():
 
     return plateau
 
-
-# ----------------------------------------------------------------------------------
-# IA (version 1 - NON UTILISÉE car redéfinie plus bas)
-# ----------------------------------------------------------------------------------
-def trouver_meilleur_coup(plateau, joueur):
-
-    # Récupération des coups possibles
-    coups = coups_valides(plateau, joueur)
-
-    if len(coups) == 0:
-        return None
-
-    meilleur_coup = None
-    meilleur_score = -1
-
-    # Test de chaque coup
-    for coup in coups:
-
-        ligne = coup[0]
-        colonne = coup[1]
-
-        # Copie du plateau pour simulation
-        plateau_simule = [row[:] for row in plateau]
-
-        # Simulation du coup
-        jouer_coup(plateau_simule, ligne, colonne, joueur)
-
-        # Calcul du score
-        score_noir, score_blanc = calculer_score(plateau_simule)
-
-        # Calcul de l’avantage du joueur
-        if joueur == PION_NOIR:
-            score = score_noir - score_blanc
-        else:
-            score = score_blanc - score_noir
-
-        # Mise à jour du meilleur coup
-        if score > meilleur_score:
-            meilleur_score = score
-            meilleur_coup = (ligne, colonne)
-
-    return meilleur_coup
-
-
 # ----------------------------------------------------------------------------------
 # Vérifie si une position est dans le plateau
 # ----------------------------------------------------------------------------------
