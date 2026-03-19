@@ -1,26 +1,34 @@
-#======================================================================================================
-#Auteur : Ruben Ten Cate, Marc Schilter
-#Date : 26.02.2026
-#Présentation du programme : Programme du jeu Othello avec une interface graphique utilisant Pygame.
-# Le code gère la logique du jeu, les interactions utilisateur et l'affichage du plateau et des pions.
-#======================================================================================================
+#============================================================================================================================
+# Auteur : Ruben Ten Cate, Marc Schilter
+# Date : 26.02.2026
+# Description :
+# Ce fichier contient toute la logique du jeu Othello.
+# Il gère : le plateau, les règles du jeu, les coups possibles, l’application des coups, le calcul du score et une IA simple
+#============================================================================================================================
+
 
 # Taille du plateau (8 lignes et 8 colonnes)
 BOARD_SIZE = 8
+
 
 # Valeurs utilisées dans le tableau
 CASE_VIDE = 0
 PION_NOIR = 1
 PION_BLANC = -1
 
+
 # Les 8 directions possibles autour d’une case
+# (horizontal, vertical, diagonales)
 DIRECTIONS = [
     (-1, -1), (-1, 0), (-1, 1),
     (0, -1),           (0, 1),
     (1, -1),  (1, 0),  (1, 1)
 ]
 
-#  Crée un plateau vide 8x8, puis place les 4 pions de départ.
+
+# ----------------------------------------------------------------------------------
+# Création du plateau
+# ----------------------------------------------------------------------------------
 def creer_plateau():
 
     plateau = []
@@ -44,54 +52,53 @@ def creer_plateau():
 
     return plateau
 
+
+# ----------------------------------------------------------------------------------
+# IA (version 1 - NON UTILISÉE car redéfinie plus bas)
+# ----------------------------------------------------------------------------------
 def trouver_meilleur_coup(plateau, joueur):
 
-    # On récupère tous les coups possibles pour ce joueur
+    # Récupération des coups possibles
     coups = coups_valides(plateau, joueur)
 
-    # S'il n'y a aucun coup possible, on renvoie None
     if len(coups) == 0:
         return None
 
-    # On prépare deux variables pour garder le meilleur coup trouvé
     meilleur_coup = None
-    meilleur_score = -1  # score très bas pour être sûr que le premier coup sera meilleur
+    meilleur_score = -1
 
-    # On teste chaque coup possible
+    # Test de chaque coup
     for coup in coups:
 
         ligne = coup[0]
         colonne = coup[1]
 
-        # On crée une copie du plateau pour simuler le coup
-        # (sinon on modifierait le vrai plateau)
+        # Copie du plateau pour simulation
         plateau_simule = [row[:] for row in plateau]
 
-        # On joue le coup sur le plateau simulé
+        # Simulation du coup
         jouer_coup(plateau_simule, ligne, colonne, joueur)
 
-        # On calcule le score après avoir joué ce coup
+        # Calcul du score
         score_noir, score_blanc = calculer_score(plateau_simule)
 
-        # On calcule un score "avantage" pour le joueur
-        # Noir veut maximiser (noir - blanc)
-        # Blanc veut maximiser (blanc - noir)
+        # Calcul de l’avantage du joueur
         if joueur == PION_NOIR:
             score = score_noir - score_blanc
         else:
             score = score_blanc - score_noir
 
-        # Si ce coup donne un meilleur score que les précédents,
-        # on le garde comme meilleur coup
+        # Mise à jour du meilleur coup
         if score > meilleur_score:
             meilleur_score = score
             meilleur_coup = (ligne, colonne)
 
-    # On renvoie le coup qui donne le meilleur résultat
     return meilleur_coup
 
 
-# Vérifie si une position est bien à l'intérieur du plateau.
+# ----------------------------------------------------------------------------------
+# Vérifie si une position est dans le plateau
+# ----------------------------------------------------------------------------------
 def position_valide(ligne, colonne):
 
     if ligne >= 0 and ligne < BOARD_SIZE and colonne >= 0 and colonne < BOARD_SIZE:
@@ -99,12 +106,15 @@ def position_valide(ligne, colonne):
     else:
         return False
 
-# Retourne la liste des pions qui seront retournés, si le joueur joue à la position donnée.
+
+# ----------------------------------------------------------------------------------
+# Trouve les pions à retourner
+# ----------------------------------------------------------------------------------
 def pions_a_retourner(plateau, ligne, colonne, joueur):
 
     liste_pions = []
 
-    # On teste les 8 directions
+    # Test des 8 directions
     for direction in DIRECTIONS:
 
         delta_ligne = direction[0]
@@ -115,7 +125,7 @@ def pions_a_retourner(plateau, ligne, colonne, joueur):
 
         pions_temp = []
 
-        # On avance tant qu'on trouve des pions adverses
+        # Avancer tant qu’on trouve des pions adverses
         while position_valide(ligne_courante, colonne_courante) and \
               plateau[ligne_courante][colonne_courante] == -joueur:
 
@@ -124,7 +134,7 @@ def pions_a_retourner(plateau, ligne, colonne, joueur):
             ligne_courante = ligne_courante + delta_ligne
             colonne_courante = colonne_courante + delta_colonne
 
-        # Si on tombe sur un pion du joueur, la capture est valide
+        # Vérifier si la capture est valide
         if position_valide(ligne_courante, colonne_courante) and \
            plateau[ligne_courante][colonne_courante] == joueur and \
            len(pions_temp) > 0:
@@ -134,7 +144,10 @@ def pions_a_retourner(plateau, ligne, colonne, joueur):
 
     return liste_pions
 
-#  Retourne la liste des coups possibles pour le joueur.
+
+# ----------------------------------------------------------------------------------
+# Liste des coups possibles
+# ----------------------------------------------------------------------------------
 def coups_valides(plateau, joueur):
 
     liste_coups = []
@@ -142,25 +155,33 @@ def coups_valides(plateau, joueur):
     for ligne in range(BOARD_SIZE):
         for colonne in range(BOARD_SIZE):
 
+            # Vérifier que la case est vide
             if plateau[ligne][colonne] == CASE_VIDE:
 
                 pions = pions_a_retourner(plateau, ligne, colonne, joueur)
 
+                # Si au moins un pion est retourné → coup valide
                 if len(pions) > 0:
                     liste_coups.append((ligne, colonne))
 
     return liste_coups
 
-# Applique un coup sur le plateau.
+
+# ----------------------------------------------------------------------------------
+# Applique un coup
+# ----------------------------------------------------------------------------------
 def jouer_coup(plateau, ligne, colonne, joueur):
 
     pions = pions_a_retourner(plateau, ligne, colonne, joueur)
 
+    # Coup invalide
     if len(pions) == 0:
         return False
 
+    # Placement du pion
     plateau[ligne][colonne] = joueur
 
+    # Retourner les pions
     for position in pions:
         l = position[0]
         c = position[1]
@@ -168,7 +189,10 @@ def jouer_coup(plateau, ligne, colonne, joueur):
 
     return True
 
-#   Compte le nombre de pions noirs et blancs.
+
+# ----------------------------------------------------------------------------------
+# Calcul du score
+# ----------------------------------------------------------------------------------
 def calculer_score(plateau):
 
     score_noir = 0
@@ -184,21 +208,32 @@ def calculer_score(plateau):
                 score_blanc = score_blanc + 1
 
     return score_noir, score_blanc
-# Trouve le meilleur coup pour l'IA (stratégie simple : retourne le plus de pions)
+
+
+# ----------------------------------------------------------------------------------
+# IA (version utilisée)
+# ----------------------------------------------------------------------------------
 def trouver_meilleur_coup(plateau, joueur):
-    """Choisit le coup qui retourne le plus de pions"""
+
+    # Choisit le coup qui retourne le plus de pions
+
     coups = coups_valides(plateau, joueur)
-    
+
     if len(coups) == 0:
         return None
-    
+
+    # On prend le premier coup comme référence
     meilleur_coup = coups[0]
+
     max_pions = len(pions_a_retourner(plateau, coups[0][0], coups[0][1], joueur))
-    
+
+    # Comparaison avec les autres coups
     for coup in coups[1:]:
+
         nb_pions = len(pions_a_retourner(plateau, coup[0], coup[1], joueur))
+
         if nb_pions > max_pions:
             max_pions = nb_pions
             meilleur_coup = coup
-    
+
     return meilleur_coup
